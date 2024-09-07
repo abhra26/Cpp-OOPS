@@ -1,0 +1,138 @@
+#include <iostream>
+using namespace std;
+
+/* NOTES
+Acces modifier: Public, Protected, Private
+Class Methods: Functions in classes
+Constructor:
+    A special class method invoked whenever class object is made.
+    A constructor doesnt have a return type.
+    Constructor must have same name that of class name
+    Constructor is mostly publicly defined
+Encapsulation:
+    Implemented using Getters and Setter
+    Helps safe-guard attribute info
+    Provides control logic between user data input and Attributes
+Abstraction:
+    Like a contract the main class has to sign to provide its own implementation of a virtual function
+    When another developer comes he does not need to worry about the complexity/logic of "IsPromotion"
+Inheritance: Child class inherits properties from Parent class
+Polymorphism:
+    Parent Class reference is used to refer a child class(Parent class pointer points to derived class object)
+*/
+
+//__________________________________________________Contract (Abhstraction)______________________________________________
+
+class AbstractEmployee {
+	virtual void IsPromotion() = 0;
+};
+
+//________________________________________________________Parent Class_______________________________________________________
+
+class Employee : AbstractEmployee {
+private:
+	//Attributes of class employee
+	string Company;
+	int Age;
+
+protected:
+	string Name;
+
+public:
+
+	// Constructor
+	Employee(string name, string company, int age) {
+		Name = name;
+		Company = company;
+		Age = age;
+	}
+
+	void IntroduceYourself() {
+		cout << "Name: "<< Name << std::endl;
+		cout << "Company: "<< Company << std::endl;
+		cout << "Age: "<< Age << std::endl;
+	}
+
+	//Setter
+	void setName(string name) {
+		// Can add checks or controls to interact with Attributes.
+		Name = Name;
+	}
+	void setCompany(string company) {
+		Company = company;
+	}
+	void setAge(int age) {
+		Age = age;
+	}
+
+	//Getter
+	string getName() {
+		return Name;
+	}
+	string getCompany() {
+		return Company;
+	}
+	int getAge() {
+		return Age;
+	}
+
+	void IsPromotion() {
+		if (Age<30) {
+			cout <<"Sorry no promotion for you"<<endl;
+		}
+		else {
+			cout<<"You are eligible to be promoted"<<endl;
+		}
+	}
+
+	virtual void work() {
+		cout<<getName()<<" is Working "<<endl;
+	}
+};
+
+//_________________________________________________Child Class______________________________________________
+
+class Developer: public Employee {
+private:
+	string FavProgrammingLanguage;
+
+public:
+	//Constructor
+	Developer(string name, string company, int age, string favprogramminglanguage)
+		:Employee(name,company,age) // Using parent class Constructor
+	{
+		FavProgrammingLanguage = favprogramminglanguage;
+	}
+
+	void FixBug() {
+		//cout<< getName() <<" Fixed bugs using " << FavProgrammingLanguage << endl;
+		cout<< Name <<" Fixed bugs using " << FavProgrammingLanguage << endl;
+	}
+
+	void work() {
+		cout<<getName()<<" is Working using "<< FavProgrammingLanguage<< endl;
+	}
+};
+
+int main()
+{
+	//Since classes are user defined datatypes, we declare instances similiarly
+
+	string Name = "Abhraneel";
+	string Company = "Redinent";
+	int Age = 31;
+
+	Employee employee1 = Employee(Name,Company,Age);
+
+	employee1.IntroduceYourself();
+	employee1.IsPromotion();
+
+	Developer dev1 = Developer("John Doe","Google",35,"Python");
+	dev1.FixBug();
+	dev1.IsPromotion();
+
+	Employee* e1 = &dev1;
+	e1->work();
+
+	return 0;
+}
