@@ -1,0 +1,74 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Rq{
+/*
+Ring polynomial: Zq[X]/(X^n+1)
+n = 2^n'-1; n'=9 => n=256
+*/
+private:
+    int Q;
+    vector<int> Coeffs;
+
+public:
+    //Constructor 
+    Rq(vector<int> coeffs, int q){
+        int n = coeffs.size() - 1; // degree of polynomial
+        Coeffs = coeffs;
+        Q = q;
+        normalise();
+    }
+    
+    Rq operator+(const Rq& other) const{
+        vector<int> result(max(Coeffs.size(),other.size()),0);
+        for (int i=0;i<Coeffs.size();i++){
+            result[i] += Coeffs[i];
+        }
+        for (int j=0;j<other.size();j++){
+            result[j] += other[j];
+        }
+        
+        return Rq(result,Q);
+    }
+    
+    void normalise(){
+        for(int i=0;i<Coeffs.size();i++){
+            if (Coeffs[i]>=Q){
+                Coeffs[i] = Coeffs[i] % Q;
+            }
+        }
+    }
+    
+    void Print(){
+        for (int i=0;i<Coeffs.size();i++){
+            if (i==0){
+                cout<<Coeffs[i]<<"+";
+            }
+            else{
+                if(i == Coeffs.size()-1){
+                    cout<<Coeffs[i]<<"x^"<<i<<endl;
+                }
+                else{
+                    cout<<Coeffs[i]<<"x^"<<i<<"+";
+                }
+            }
+        }
+    }
+    
+
+
+
+};
+
+
+int main()
+{
+    
+    vector<int> coeffs = {1,22,35,58,6,7,67,23};
+    int q = 4;
+    Rq P1 = Rq(coeffs,q);
+    P1.Print();
+    
+    return 0;
+}
