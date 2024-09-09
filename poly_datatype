@@ -178,7 +178,7 @@ protected:
         int temp = 0;
         for (int i=0;i<K;i++){
             for(int j=0;j<N;j++){
-                temp = rand();
+                temp = rand(); // Here we will use gaussian sampler hardware
                 random[j] = temp;
             }
             arr[i] = Rq(random,q);
@@ -203,7 +203,7 @@ public:
         for (int i=0;i<k;i++){
             for (int j=0;j<k;j++){
                 for (int k=0;k<n;k++){
-                    temp = rand();
+                    temp = rand(); // use GaussSampler
                     coeffs[k] = temp;
                 }
                 
@@ -221,8 +221,8 @@ public:
     
     Rq* GEN_PK(Rq** A){ // Generates T matrix
         // T = A*S+E;
-        Rq* E = GEN_RANDOM_MATRICES(n,k,4);
-        Rq* S = GEN_SECRET();
+        Rq* E = GEN_RANDOM_MATRICES(n,k,4);  
+        Rq* S = GEN_SECRET(); 
         Rq* temp = (Rq*)malloc(k*sizeof(Rq));
         
         vector<int> coeffs(n,0);
@@ -232,9 +232,9 @@ public:
         
         for(int i=0;i<k;k++){
             for(int j=0;j<k;j++){
-                temp[i] = temp[i] + A[i][j]*S[j];
+                temp[i] = temp[i] + A[i][j]*S[j]; // Here we will use the NTT hardware accelerator 
             }
-            
+            // Insert inverse NTT code here 
             temp[i] = temp[i] + E[i];
         }
         
@@ -242,8 +242,6 @@ public:
         
         
     }
-    
-    
     
     void Print(Rq** A){
         for(int i=0;i<k;i++){
@@ -296,8 +294,8 @@ int main()
     CRYSTALS_KYBER K1 = CRYSTALS_KYBER(5,3,7321);
     Rq** A = K1.GEN_A_matrix();
     //Rq** A_T = K1.T(A);
-    K1.Print(A);
-    cout<<endl;
+    //K1.Print(A);
+    //cout<<endl;
     //K1.Print(A_T);
     
     Rq* T = K1.GEN_PK(A);
