@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 using namespace std;
 
@@ -68,6 +69,27 @@ public:
         return Rq(result,Q);
     }
     
+    Rq pow(int scalar) const { //Over-riding Power operator
+        vector<int> result(Coeffs.size(),0);
+        int temp = 0;
+        if (scalar == 0){
+            return Rq({1},Q);
+        }
+        
+        else{
+            
+            for (int i=0;i<Coeffs.size();i++){
+                temp = Coeffs[i];
+                for (int j=0;j<scalar;j++){
+                    temp *= temp;
+                }
+                result[i] = temp;
+            }
+            return Rq(result,Q);
+        }
+    
+    }
+    
     void normalise(){ // Brings coeffs in range (-q/2,q/2]
         for(int i=0;i<Coeffs.size();i++){
             if (Coeffs[i]>=Q){
@@ -80,31 +102,29 @@ public:
         int n = Coeffs.size()-1;
         for (int i=0;i<Coeffs.size();i++){
             if (i==n){
-                cout<<Coeffs[i]<<endl;
+                cout<<"("<<Coeffs[i]<<")"<<endl;
             }
             else{
-                cout<<Coeffs[i]<<"x^"<<n-i<<"+";
+                cout<<"("<<Coeffs[i]<<")x^"<<n-i<<"+";
             }
         }
     }
     
-
-
-
 };
 
-
+// Testing Data Type
 int main()
 {
     
     vector<int> coeffs1 = {1,22,35,58,6,7,67,23};
-    int q = 4;
+    int q = 5;
     Rq P1 = Rq(coeffs1,q);
     P1.Print();
     
     vector<int> coeffs2 = {1,21,35,8,64,27,67,24};
     Rq P2 = Rq(coeffs2,q);
     P2.Print();
+    cout<<endl;
     
     Rq P3 = P1+P2;
     cout<<"Addition P1+P2 = ";
@@ -116,5 +136,14 @@ int main()
     P4.Print();
     cout<<endl;
     
+    Rq P5 = P1.pow(2);
+    cout<<"Power P1**2 = ";
+    P5.Print();
+    cout<<endl;
+    
+    Rq P6 = P1*17;
+    cout<<"P1*17 = ";
+    P6.Print();
+    cout<<endl;
     return 0;
 }
