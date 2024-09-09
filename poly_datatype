@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cstdlib>
 using namespace std;
 
 class Rq{
@@ -98,11 +99,29 @@ public:
         }
     }
     
+    //Getters and Setters
+    void setCoeffs(vector<int> coeffs){
+        Coeffs = coeffs;
+    }
+    
+    void setQ(int q){
+        Q = q;
+    }
+    
+    vector<int> getCoeffs(){
+        return Coeffs;
+    }
+    
+    int getQ(){
+        return Q;
+    }
+    
+    // Print Functions
     void Print(){ //Function to print polynomial
         int n = Coeffs.size()-1;
         for (int i=0;i<Coeffs.size();i++){
             if (i==n){
-                cout<<"("<<Coeffs[i]<<")"<<endl;
+                cout<<"("<<Coeffs[i]<<")";
             }
             else{
                 cout<<"("<<Coeffs[i]<<")x^"<<n-i<<"+";
@@ -112,10 +131,136 @@ public:
     
 };
 
+class CRYSTALS_KYBER{
+private: 
+    int n;
+    int k;
+    int Q;
+    
+protected:
+    // Creates a 2D array
+    Rq** GEN_2D_ARR(int rows, int cols, int n,int q){
+        Rq **array = (Rq **)malloc(rows * sizeof(Rq *));
+        for (int i = 0; i < rows; i++) {
+            array[i] = (Rq *)malloc(cols * sizeof(Rq));
+        }
+        
+        vector<int> zeros(n,0);
+    
+        for (int i=0; i<rows;i++){
+            for (int j=0;j<cols;j++){
+                array[i][j] = Rq(zeros,q);
+            }        
+        }
+    
+        return array;
+    }
+    
+    Rq** T(Rq** A){ // Transpose of A 
+    
+        Rq **array = (Rq **)malloc(k * sizeof(Rq *));
+            for (int i = 0; i < k; i++) {
+                array[i] = (Rq *)malloc(k * sizeof(Rq));
+            }
+            
+        for(int i=0;i<k;i++){
+            for(int j=0;j<k;j++){
+                array[i][j] = A[j][i];
+            }
+        }
+        
+        return array;
+    }
+    
+    Rq* GEN_RANDOM_MATRICES(int N, int K,int q){
+        vector<int> random(N,0);
+        Rq* arr = (Rq*)malloc(k*sizeof(Rq));
+        int temp = 0;
+        for (int i=0;i<K;i++){
+            for(int j=0;j<N;j++){
+                temp = rand();
+                random[j] = temp;
+            }
+            arr[i] = Rq(random,q);
+        }
+        
+        return arr;
+    }
+    
+public:
+    
+    CRYSTALS_KYBER(int N, int K, int q){
+        n = N;
+        k = K;
+        Q = q;
+    }
+    
+    Rq** GEN_A_matrix(){ // Generates A matrix
+        Rq** A = GEN_2D_ARR(k,k,n,Q);
+        vector<int> coeffs(n,0);
+        int temp=0;
+        
+        for (int i=0;i<k;i++){
+            for (int j=0;j<k;j++){
+                for (int k=0;k<n;k++){
+                    temp = rand();
+                    coeffs[k] = temp;
+                }
+                
+                A[i][j] = Rq(coeffs,Q);
+            }
+        }
+        
+        return A;
+    }
+    
+    Rq* GEN_SECRET(){ // Generates Secret Key
+        Rq* S = GEN_RANDOM_MATRICES(n,k,Q);
+        return S;
+    }
+    
+    Rq* GEN_PK(Rq** A){ // Generates T matrix
+        // T = A*S+E;
+        Rq* E = GEN_RANDOM_MATRICES(n,k,4);
+        Rq* S = GEN_SECRET();
+        Rq* temp = (Rq*)malloc(k*sizeof(Rq));
+        
+        vector<int> coeffs(n,0);
+        for(int i=0;i<k;k++){
+            temp[i] = Rq(coeffs,Q);
+        }
+        
+        for(int i=0;i<k;k++){
+            for(int j=0;j<k;j++){
+                temp[i] = temp[i] + A[i][j]*S[j];
+            }
+            
+            temp[i] = temp[i] + E[i];
+        }
+        
+        return temp;
+        
+        
+    }
+    
+    
+    
+    void Print(Rq** A){
+        for(int i=0;i<k;i++){
+            for(int j=0;j<k;j++){
+                A[i][j].Print();
+                cout<<" ";
+            }
+            cout<<endl;
+        }
+    }
+    
+};
+
 // Testing Data Type
 int main()
 {
-    
+    /*
     vector<int> coeffs1 = {1,22,35,58,6,7,67,23};
     int q = 5;
     Rq P1 = Rq(coeffs1,q);
@@ -146,4 +291,20 @@ int main()
     P6.Print();
     cout<<endl;
     return 0;
+    */
+    
+    CRYSTALS_KYBER K1 = CRYSTALS_KYBER(5,3,7321);
+    Rq** A = K1.GEN_A_matrix();
+    //Rq** A_T = K1.T(A);
+    K1.Print(A);
+    cout<<endl;
+    //K1.Print(A_T);
+    
+    Rq* T = K1.GEN_PK(A);
+    
+    for (int i=0;i<3;i++){
+        T[i].Print();
+        cout<<endl;
+    }
+    
 }
