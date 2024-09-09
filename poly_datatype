@@ -10,29 +10,71 @@ n = 2^n'-1; n'=9 => n=256
 private:
     int Q;
     vector<int> Coeffs;
+    
+protected:
+    
+
+
+    
 
 public:
-    //Constructor 
-    Rq(vector<int> coeffs, int q){
-        int n = coeffs.size() - 1; // degree of polynomial
+     
+    Rq(vector<int> coeffs, int q){ // Constructor 
+        int n = coeffs.size() - 1; 
         Coeffs = coeffs;
         Q = q;
         normalise();
     }
     
-    Rq operator+(const Rq& other) const{
-        vector<int> result(max(Coeffs.size(),other.size()),0);
+    Rq operator+(const Rq& other) const{ // Over-riding "+" operator 
+        vector<int> result(max(Coeffs.size(),other.Coeffs.size()),0);
         for (int i=0;i<Coeffs.size();i++){
             result[i] += Coeffs[i];
         }
-        for (int j=0;j<other.size();j++){
-            result[j] += other[j];
+        for (int j=0;j<other.Coeffs.size();j++){
+            result[j] += other.Coeffs[j];
         }
         
         return Rq(result,Q);
     }
     
-    void normalise(){
+    Rq operator*(const Rq& other) const{ // Over-riding "*" operator 
+        vector<int> result(Coeffs.size()+other.Coeffs.size()-1,0);
+        for (int i=0;i<Coeffs.size();i++){
+            for (int j=0;j<other.Coeffs.size();j++){
+                result[i+j] = (Coeffs[i]*other.Coeffs[j]) % Q;
+            }
+        }
+        
+        int deg = result.size() - Coeffs.size() - 1;
+        int mult =0;
+        for (int i=0;i<deg;i++){
+            mult = result[i];
+            result[i+ Coeffs.size()] -= mult;
+            result[i] = 0;
+        }
+        
+        vector<int> final_result(Coeffs.size(),0);
+        int index = deg+1;
+        
+        for (int j=0;j<Coeffs.size();j++){
+            final_result[j] = result[index];
+            index++;
+        }
+        
+        return Rq(final_result,Q);
+    }
+    
+    Rq operator*(int scalar){ //Multiply with scalar
+        vector<int> result(Coeffs.size(),0);
+        for (int i=0;i<Coeffs.size();i++){
+            result[i] = Coeffs[i]*scalar;
+        }
+        
+        return Rq(result,Q);
+    }
+    
+    void normalise(){ // Brings coeffs in range (-q/2,q/2]
         for(int i=0;i<Coeffs.size();i++){
             if (Coeffs[i]>=Q){
                 Coeffs[i] = Coeffs[i] % Q;
@@ -40,18 +82,14 @@ public:
         }
     }
     
-    void Print(){
+    void Print(){ //Function to print polynomial
+        int n = Coeffs.size()-1;
         for (int i=0;i<Coeffs.size();i++){
-            if (i==0){
-                cout<<Coeffs[i]<<"+";
+            if (i==n){
+                cout<<Coeffs[i]<<endl;
             }
             else{
-                if(i == Coeffs.size()-1){
-                    cout<<Coeffs[i]<<"x^"<<i<<endl;
-                }
-                else{
-                    cout<<Coeffs[i]<<"x^"<<i<<"+";
-                }
+                cout<<Coeffs[i]<<"x^"<<n-i<<"+";
             }
         }
     }
@@ -65,10 +103,24 @@ public:
 int main()
 {
     
-    vector<int> coeffs = {1,22,35,58,6,7,67,23};
+    vector<int> coeffs1 = {1,22,35,58,6,7,67,23};
     int q = 4;
-    Rq P1 = Rq(coeffs,q);
+    Rq P1 = Rq(coeffs1,q);
     P1.Print();
+    
+    vector<int> coeffs2 = {1,21,35,8,64,27,67,24};
+    Rq P2 = Rq(coeffs2,q);
+    P2.Print();
+    
+    Rq P3 = P1+P2;
+    cout<<"Addition P1+P2 = ";
+    P3.Print();
+    cout<<endl;
+    
+    Rq P4 = P1*P2;
+    cout<<"Multiplication P1*P2 = ";
+    P4.Print();
+    cout<<endl;
     
     return 0;
 }
